@@ -1,4 +1,4 @@
-package com.excersice.Blog;
+package com.excersice.blog;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
