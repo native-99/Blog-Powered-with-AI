@@ -57,6 +57,16 @@
 			<artifactId>spring-boot-starter-webmvc-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+<!--		<dependency>-->
+<!--			<groupId>org.flywaydb</groupId>-->
+<!--			<artifactId>flyway-core</artifactId>-->
+<!--		</dependency>-->
+
+<!--		<dependency>-->
+<!--			<groupId>org.flywaydb</groupId>-->
+<!--			<artifactId>flyway-mysql</artifactId>-->
+<!--		</dependency>-->
 	</dependencies>
 
 	<build>
@@ -108,6 +118,27 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+
+			<!-- Plugin Flyway -->
+			<plugin>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-maven-plugin</artifactId>
+				<version>10.17.2</version>
+
+				<configuration>
+					<url>jdbc:mysql://localhost:3306/blog</url>
+					<user>root</user>
+					<password>password</password>
+				</configuration>
+
+				<dependencies>
+					<dependency>
+						<groupId>org.flywaydb</groupId>
+						<artifactId>flyway-mysql</artifactId>
+						<version>10.17.2</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 		</plugins>
 	</build>
