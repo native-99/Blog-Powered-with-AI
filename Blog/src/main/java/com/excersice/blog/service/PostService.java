@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -36,9 +35,7 @@ public class PostService {
         */
 
         // AFTER - pakai Repository / database
-        List<Post> posts = new ArrayList<>();
-        postRepository.findAll().forEach(posts::add);
-        return posts;
+        return postRepository.findAllByIsDeleted(false);
     }
 
 
@@ -54,7 +51,7 @@ public class PostService {
 
         // AFTER - cari data dari database berdasarkan slug
 
-        return postRepository.findBySlug(slug).orElse(null);
+        return postRepository.findFirstBySlugAndIsDeleted(slug, false).orElse(null);
     }
 
 
@@ -73,61 +70,30 @@ public class PostService {
 
 
     public Post updatePostBySlug(String slug, Post sentPostByUser) {
-        /*
-        BEFORE - cari post dari List manual
-
-        Post savedPost = posts.stream()
-                .filter(post -> post.getSlug().equals(slug))
-                .findFirst()
-                .orElse(null);
-        */
-
-        // AFTER - cari post dari database berdasarkan slug
-        Post savedPost = postRepository.findBySlug(slug).orElse(null);
+        Post savedPost = postRepository.findFirstBySlugAndIsDeleted(slug, false).orElse(null);
 
         if (savedPost == null) {
             return null;
         }
 
         savedPost.setTitle(sentPostByUser.getTitle());
+        savedPost.setBody(sentPostByUser.getBody());
         savedPost.setSlug(sentPostByUser.getSlug());
 
-        /*
-        BEFORE - cukup return object karena data hanya di memory
-
-        return savedPost;
-        */
-
-        // AFTER - simpan ulang perubahan ke database
         return postRepository.save(savedPost);
     }
 
 
     public boolean deletePostById(Integer id) {
-        /*
-        BEFORE - cari post dari List manual
-
-        Post savedPost = posts.stream()
-                .filter(post -> post.getId().equals(id))
-                .findFirst()
-                .orElse(null);
-        */
-
-        // AFTER - cari post dari database berdasarkan id
         Post savedPost = postRepository.findById(id).orElse(null);
 
         if (savedPost == null) {
             return false;
         }
 
-        /*
-        BEFORE - hapus dari List manual
+        savedPost.setDeleted(true);
+        postRepository.save(savedPost);
 
-        posts.remove(savedPost);
-        */
-
-        // AFTER - hapus dari database
-        postRepository.delete(savedPost);
         return true;
     }
 
@@ -149,8 +115,8 @@ public class PostService {
         if (savedPost == null) {
             return null;
         }
-        savedPost.setPublishedAt(Instant.now().getEpochSecond());
         savedPost.setPublished(true);
+        savedPost.setPublishedAt(Instant.now().getEpochSecond());
 
         /*
         BEFORE - cukup return object karena data hanya di memory
