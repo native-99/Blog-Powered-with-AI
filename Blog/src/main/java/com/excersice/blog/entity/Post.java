@@ -1,5 +1,6 @@
 package com.excersice.blog.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -22,6 +23,10 @@ public class Post {
     private Long publishedAt;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "post", orphanRemoval = true)
+    @JsonIgnore
     private List<Comment> comments;
-
+    private Long commentCount;
 }
+
+
+
