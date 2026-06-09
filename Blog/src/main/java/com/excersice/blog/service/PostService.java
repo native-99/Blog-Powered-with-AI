@@ -1,7 +1,10 @@
 package com.excersice.blog.service;
 
 import com.excersice.blog.entity.Post;
+import com.excersice.blog.mapper.PostMapper;
 import com.excersice.blog.repository.PostRepository;
+import com.excersice.blog.request.CreatePostRequest;
+import com.excersice.blog.response.CreatePostResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -55,7 +58,7 @@ public class PostService {
     }
 
 
-    public Post createPost(Post post) {
+    public CreatePostRequest createPost(CreatePostRequest request) {
         /*
         BEFORE - tambah data ke List manual
 
@@ -64,8 +67,13 @@ public class PostService {
         */
 
         // AFTER - simpan data ke database
+
+        Post post = PostMapper.INSTANCE.map(request);
+        post.setCommentCount(0L);
         post.setCreatedAt(Instant.now().getEpochSecond());
-        return postRepository.save(post);
+        post = postRepository.save(post);
+
+        return PostMapper.INSTANCE.map(post);
     }
 
 
