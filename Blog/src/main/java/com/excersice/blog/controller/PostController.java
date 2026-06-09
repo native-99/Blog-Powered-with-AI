@@ -1,6 +1,7 @@
 package com.excersice.blog.controller;
 
 import com.excersice.blog.entity.Post;
+import com.excersice.blog.request.CreatePostRequest;
 import com.excersice.blog.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +26,8 @@ public class PostController {
     }
 
     @PostMapping("/")
-    public Post createPost(@RequestBody Post post) {
-        return postService.createPost(post);
+    public CreatePostRequest createPost(@RequestBody CreatePostRequest createPostRequest) {
+        return postService.createPost(createPostRequest);
     }
 
     @PutMapping("/{slug}")
