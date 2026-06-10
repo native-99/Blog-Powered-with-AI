@@ -2,7 +2,10 @@ package com.excersice.blog.controller;
 
 import com.excersice.blog.entity.Post;
 import com.excersice.blog.request.CreatePostRequest;
+import com.excersice.blog.response.CreatePostResponse;
+import com.excersice.blog.response.GetPostResponse;
 import com.excersice.blog.service.PostService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,12 +24,13 @@ public class PostController {
     }
 
     @GetMapping("/{slug}")
-    public Post getPostBySlug(@PathVariable String slug) {
+    public GetPostResponse getPostBySlug(@PathVariable String slug) {
         return postService.getPostBySlug(slug);
     }
 
+
     @PostMapping("/")
-    public CreatePostRequest createPost(@RequestBody CreatePostRequest createPostRequest) {
+    public CreatePostResponse createPost(@Valid @RequestBody CreatePostRequest createPostRequest) {
         return postService.createPost(createPostRequest);
     }
 

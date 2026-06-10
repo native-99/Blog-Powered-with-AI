@@ -5,6 +5,7 @@ import com.excersice.blog.mapper.PostMapper;
 import com.excersice.blog.repository.PostRepository;
 import com.excersice.blog.request.CreatePostRequest;
 import com.excersice.blog.response.CreatePostResponse;
+import com.excersice.blog.response.GetPostResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,38 +43,22 @@ public class PostService {
     }
 
 
-    public Post getPostBySlug(String slug) {
-        /*
-        BEFORE - cari data dari List manual
+    public GetPostResponse getPostBySlug(String slug) {
+        Post post = postRepository.findFirstBySlugAndIsDeleted(slug, false)
+                .orElseThrow(() -> new RuntimeException("not found"));
 
-        return posts.stream()
-                .filter(post -> post.getSlug().equals(slug))
-                .findFirst()
-                .orElse(null);
-        */
-
-        // AFTER - cari data dari database berdasarkan slug
-
-        return postRepository.findFirstBySlugAndIsDeleted(slug, false).orElse(null);
+        return PostMapper.INSTANCE.mapToGetPostResponse(post);
     }
 
 
-    public CreatePostRequest createPost(CreatePostRequest request) {
-        /*
-        BEFORE - tambah data ke List manual
 
-        posts.add(post);
-        return post;
-        */
-
-        // AFTER - simpan data ke database
-
+    public CreatePostResponse createPost(CreatePostRequest request) {
         Post post = PostMapper.INSTANCE.map(request);
         post.setCommentCount(0L);
         post.setCreatedAt(Instant.now().getEpochSecond());
         post = postRepository.save(post);
 
-        return PostMapper.INSTANCE.map(post);
+        return PostMapper.INSTANCE.mapToCreatePostResponse(post);
     }
 
 
