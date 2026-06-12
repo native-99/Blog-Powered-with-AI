@@ -1,4 +1,4 @@
-package com.excersice.blog.response;
+package com.excersice.blog.response.post;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -12,4 +12,6 @@ public class GetPostResponse {
     private String body;
     private String slug;
     private Long createdAt;
+    private Long publishedAt;
+    private Long commentCount;
 }

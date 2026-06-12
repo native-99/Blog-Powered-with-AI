@@ -1,20 +1,21 @@
-package com.excersice.blog.response;
-
+package com.excersice.blog.response.post;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Builder
 @Data
-@AllArgsConstructor
+@Builder
 @NoArgsConstructor
-public class CreatePostResponse {
+@AllArgsConstructor
+public class UpdatePostBySlugResponse {
 
+    private Integer id;
     private String title;
     private String body;
     private String slug;
+    private Long createdAt;
     private Long publishedAt;
     private Long commentCount;
 }

@@ -1,12 +1,19 @@
 package com.excersice.blog.service;
 
 import com.excersice.blog.entity.Post;
+import com.excersice.blog.exception.ApiException;
 import com.excersice.blog.mapper.PostMapper;
 import com.excersice.blog.repository.PostRepository;
-import com.excersice.blog.request.CreatePostRequest;
-import com.excersice.blog.response.CreatePostResponse;
-import com.excersice.blog.response.GetPostResponse;
+import com.excersice.blog.request.post.CreatePostRequest;
+import com.excersice.blog.request.post.GetPostBySlugRequest;
+import com.excersice.blog.request.post.UpdatePostBySlugRequest;
+import com.excersice.blog.response.post.CreatePostResponse;
+import com.excersice.blog.response.post.DeletePostByIdResponse;
+import com.excersice.blog.response.post.GetPostResponse;
+import com.excersice.blog.response.post.PublishPostResponse;
+import com.excersice.blog.response.post.UpdatePostBySlugResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -18,38 +25,18 @@ public class PostService {
     @Autowired
     PostRepository postRepository;
 
-    /*
-    BEFORE - sebelum pakai Repository
+    public List<GetPostResponse> getPosts() {
+        List<Post> posts = postRepository.findAllByIsDeleted(false);
 
-    Post post1 = new Post(1, "title1", "slug1");
-    Post post2 = new Post(2, "title2", "slug2");
-
-    List<Post> posts = new ArrayList<Post>(Arrays.asList(post1, post2));
-
-    Data masih disimpan di memory/list biasa.
-    Kalau aplikasi dimatikan, data hilang.
-    */
-
-
-    public List<Post> getPosts() {
-        /*
-        BEFORE - pakai List manual
-
-        return posts;
-        */
-
-        // AFTER - pakai Repository / database
-        return postRepository.findAllByIsDeleted(false);
+        return PostMapper.INSTANCE.mapToGetPostResponses(posts);
     }
 
-
-    public GetPostResponse getPostBySlug(String slug) {
-        Post post = postRepository.findFirstBySlugAndIsDeleted(slug, false)
-                .orElseThrow(() -> new RuntimeException("not found"));
+    public GetPostResponse getPostBySlug(GetPostBySlugRequest request) {
+        Post post = postRepository.findFirstBySlugAndIsDeleted(request.getSlug(), false)
+                .orElseThrow(() -> new ApiException("Post not found", HttpStatus.NOT_FOUND));
 
         return PostMapper.INSTANCE.mapToGetPostResponse(post);
     }
-
 
 
     public CreatePostResponse createPost(CreatePostRequest request) {
@@ -62,62 +49,44 @@ public class PostService {
     }
 
 
-    public Post updatePostBySlug(String slug, Post sentPostByUser) {
-        Post savedPost = postRepository.findFirstBySlugAndIsDeleted(slug, false).orElse(null);
+    public UpdatePostBySlugResponse updatePostBySlug(String slug, UpdatePostBySlugRequest request) {
+        Post savedPost = postRepository.findFirstBySlugAndIsDeleted(slug, false)
+                .orElseThrow(() -> new ApiException("Post not found", HttpStatus.NOT_FOUND));
 
-        if (savedPost == null) {
-            return null;
-        }
+        savedPost.setTitle(request.getTitle());
+        savedPost.setBody(request.getBody());
+        savedPost.setSlug(request.getSlug());
 
-        savedPost.setTitle(sentPostByUser.getTitle());
-        savedPost.setBody(sentPostByUser.getBody());
-        savedPost.setSlug(sentPostByUser.getSlug());
+        Post updatedPost = postRepository.save(savedPost);
 
-        return postRepository.save(savedPost);
+        return PostMapper.INSTANCE.mapToUpdatePostBySlugResponse(updatedPost);
     }
 
 
-    public boolean deletePostById(Integer id) {
-        Post savedPost = postRepository.findById(id).orElse(null);
 
-        if (savedPost == null) {
-            return false;
-        }
+
+    public DeletePostByIdResponse deletePostById(Integer id) {
+        Post savedPost = postRepository.findById(id)
+                .orElseThrow(() -> new ApiException("Post not found", HttpStatus.NOT_FOUND));
 
         savedPost.setDeleted(true);
-        postRepository.save(savedPost);
+        Post deletedPost = postRepository.save(savedPost);
 
-        return true;
+        return DeletePostByIdResponse.builder()
+                .id(deletedPost.getId())
+                .deleted(deletedPost.isDeleted())
+                .build();
     }
 
+    public PublishPostResponse publishPost(Integer id) {
+        Post savedPost = postRepository.findById(id)
+                .orElseThrow(() -> new ApiException("Post not found", HttpStatus.NOT_FOUND));
 
-    public Post publishPost(Integer id) {
-        /*
-        BEFORE - cari post dari List manual
-
-        Post savedPost = posts.stream()
-                .filter(post -> post.getId().equals(id))
-                .findFirst()
-                .orElse(null);
-        */
-
-        // AFTER - cari post dari database berdasarkan id
-
-        Post savedPost = postRepository.findById(id).orElse(null);
-
-        if (savedPost == null) {
-            return null;
-        }
         savedPost.setPublished(true);
         savedPost.setPublishedAt(Instant.now().getEpochSecond());
 
-        /*
-        BEFORE - cukup return object karena data hanya di memory
+        Post publishedPost = postRepository.save(savedPost);
 
-        return savedPost;
-        */
-
-        // AFTER - simpan status published ke database
-        return postRepository.save(savedPost);
+        return PostMapper.INSTANCE.mapToPublishPostResponse(publishedPost);
     }
 }
