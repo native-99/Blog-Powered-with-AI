@@ -31,3 +31,11 @@ build/
 
 ### VS Code ###
 .vscode/
+
+
+### Local runtime ###
+*.log
+*.pid
+
+### Secrets ###
+src/main/resources/secret.properties
