@@ -10,7 +10,7 @@ import org.mapstruct.factory.Mappers;
 import java.util.List;
 
 @Mapper
-public interface CommentMapper {
+public  interface CommentMapper {
 
     CommentMapper INSTANCE = Mappers.getMapper(CommentMapper.class);
     Comment map(CreateCommentRequest request);
